@@ -67,9 +67,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/teams/{team}/chat/typing', [GroupChatController::class, 'updateTypingStatus']);
     Route::post('/teams/{team}/chat/retry/{clientTempId}', [GroupChatController::class, 'retry']);
 
-    // Set password for Google-authenticated users
-    Route::post('/auth/set-password', [GoogleAuthController::class, 'setPassword']);
-
     // Google account management
     Route::post('/auth/google/link', [GoogleAuthController::class, 'linkGoogleAccount']);
     Route::post('/auth/google/unlink', [GoogleAuthController::class, 'unlinkGoogleAccount']);

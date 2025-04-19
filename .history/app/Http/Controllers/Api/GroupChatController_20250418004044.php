@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Events\NewChatMessage;
 use App\Events\UserTyping;
-use App\Events\MessageRead;
 use App\Models\GroupChatMessage;
 use App\Models\MessageReadStatus;
 use App\Models\Team;

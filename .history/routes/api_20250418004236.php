@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\GoogleAuthController;
 use App\Http\Controllers\Api\GroupChatController;
 use App\Http\Controllers\Api\PersonalTaskController;
 use App\Http\Controllers\Api\TeamController;
@@ -29,9 +28,6 @@ Route::get('/test', function () {
 // Auth routes
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
-
-// Google Auth routes
-Route::post('/auth/google', [GoogleAuthController::class, 'handleGoogleSignIn']);
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -66,11 +62,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/teams/{team}/chat/unread', [GroupChatController::class, 'getUnreadCount']);
     Route::post('/teams/{team}/chat/typing', [GroupChatController::class, 'updateTypingStatus']);
     Route::post('/teams/{team}/chat/retry/{clientTempId}', [GroupChatController::class, 'retry']);
-
-    // Set password for Google-authenticated users
-    Route::post('/auth/set-password', [GoogleAuthController::class, 'setPassword']);
-
-    // Google account management
-    Route::post('/auth/google/link', [GoogleAuthController::class, 'linkGoogleAccount']);
-    Route::post('/auth/google/unlink', [GoogleAuthController::class, 'unlinkGoogleAccount']);
 }); 
