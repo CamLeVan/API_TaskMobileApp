@@ -11,6 +11,13 @@ use App\Http\Controllers\Api\TeamTaskController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\SyncController;
 use App\Http\Controllers\Api\FileController;
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\DeviceController;
+use App\Http\Controllers\Api\SearchController;
+use App\Http\Controllers\Api\StatsController;
+use App\Http\Controllers\Api\TeamActivityController;
+use App\Http\Controllers\Api\TeamExportController;
+use App\Http\Controllers\Api\PersonalTaskExportController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -94,4 +101,32 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // File upload
     Route::post('/upload', [FileController::class, 'upload']);
-}); 
+
+    // Lấy và cập nhật hồ sơ
+    Route::get('/user/profile', [UserController::class, 'profile']);
+    Route::post('/user/profile', [UserController::class, 'updateProfile']);
+    
+    // Đổi mật khẩu
+    Route::post('/user/password', [UserController::class, 'changePassword']);
+    
+    // Quản lý thiết bị
+    Route::get('/user/devices', [DeviceController::class, 'index']);
+    Route::delete('/user/devices/{device}', [DeviceController::class, 'destroy']);
+
+    // Search routes
+    Route::get('/search', [SearchController::class, 'search']);
+    Route::get('/teams/{team}/tasks/search', [TeamTaskController::class, 'search']);
+    Route::get('/teams/{team}/chat/search', [GroupChatController::class, 'search']);
+
+    // Stats routes
+    Route::get('/stats', [StatsController::class, 'index']);
+    Route::get('/teams/{team}/activity', [TeamActivityController::class, 'index']);
+
+    // Export routes
+    Route::get('/teams/{team}/export', [TeamExportController::class, 'export']);
+    Route::get('/personal-tasks/export', [PersonalTaskExportController::class, 'export']);
+});
+
+// Quên/reset mật khẩu
+Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']); 

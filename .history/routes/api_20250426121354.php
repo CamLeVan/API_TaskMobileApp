@@ -11,6 +11,8 @@ use App\Http\Controllers\Api\TeamTaskController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\SyncController;
 use App\Http\Controllers\Api\FileController;
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\DeviceController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -94,4 +96,19 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // File upload
     Route::post('/upload', [FileController::class, 'upload']);
-}); 
+
+    // Lấy và cập nhật hồ sơ
+    Route::get('/user/profile', [UserController::class, 'profile']);
+    Route::post('/user/profile', [UserController::class, 'updateProfile']);
+    
+    // Đổi mật khẩu
+    Route::post('/user/password', [UserController::class, 'changePassword']);
+    
+    // Quản lý thiết bị
+    Route::get('/user/devices', [DeviceController::class, 'index']);
+    Route::delete('/user/devices/{device}', [DeviceController::class, 'destroy']);
+});
+
+// Quên/reset mật khẩu
+Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']); 
