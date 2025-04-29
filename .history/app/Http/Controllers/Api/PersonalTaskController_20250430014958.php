@@ -10,7 +10,7 @@ class PersonalTaskController extends Controller
 {
     public function index(Request $request)
     {
-        $tasks = PersonalTask::where('user_id', $request->user()->user_id)
+        $tasks = PersonalTask::where('user_id', $request->user()->id)
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -28,7 +28,7 @@ class PersonalTaskController extends Controller
         ]);
 
         $task = PersonalTask::create([
-            'user_id' => $request->user()->user_id,
+            'user_id' => $request->user()->id,
             'title' => $request->title,
             'description' => $request->description,
             'deadline' => $request->deadline,
@@ -41,7 +41,7 @@ class PersonalTaskController extends Controller
 
     public function show(Request $request, PersonalTask $personalTask)
     {
-        if ($personalTask->user_id !== $request->user()->user_id) {
+        if ($personalTask->user_id !== $request->user()->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -50,7 +50,7 @@ class PersonalTaskController extends Controller
 
     public function update(Request $request, PersonalTask $personalTask)
     {
-        if ($personalTask->user_id !== $request->user()->user_id) {
+        if ($personalTask->user_id !== $request->user()->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -69,12 +69,41 @@ class PersonalTaskController extends Controller
 
     public function destroy(Request $request, PersonalTask $personalTask)
     {
-        if ($personalTask->user_id !== $request->user()->user_id) {
+        if ($personalTask->user_id !== $request->user()->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         $personalTask->delete();
 
         return response()->json(null, 204);
+    }
+
+    /**
+     * Update task order and status (for Kanban board)
+     */
+    public function updateTaskOrder(Request $request)
+    {
+        $request->validate([
+            'tasks' => 'required|array',
+            'tasks.*.id' => 'required|exists:personal_tasks,id',
+            'tasks.*.status' => 'required|in:pending,in_progress,completed,overdue',
+            'tasks.*.order' => 'required|integer'
+        ]);
+
+        $user = $request->user();
+
+        foreach ($request->tasks as $taskData) {
+            $task = PersonalTask::find($taskData['id']);
+
+            // Verify task belongs to this user
+            if ($task && $task->user_id === $user->id) {
+                $task->update([
+                    'status' => $taskData['status'],
+                    'order' => $taskData['order']
+                ]);
+            }
+        }
+
+        return response()->json(['message' => 'Task order updated']);
     }
 }

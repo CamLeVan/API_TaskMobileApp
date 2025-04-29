@@ -77,4 +77,33 @@ class PersonalTaskController extends Controller
 
         return response()->json(null, 204);
     }
+
+    /**
+     * Update task order and status (for Kanban board)
+     */
+    public function updateTaskOrder(Request $request)
+    {
+        $request->validate([
+            'tasks' => 'required|array',
+            'tasks.*.id' => 'required|exists:personal_tasks,id',
+            'tasks.*.status' => 'required|in:pending,in_progress,completed,overdue',
+            'tasks.*.order' => 'required|integer'
+        ]);
+
+        $user = $request->user();
+
+        foreach ($request->tasks as $taskData) {
+            $task = PersonalTask::find($taskData['id']);
+
+            // Verify task belongs to this user
+            if ($task && $task->user_id === $user->id) {
+                $task->update([
+                    'status' => $taskData['status'],
+                    'order' => $taskData['order']
+                ]);
+            }
+        }
+
+        return response()->json(['message' => 'Task order updated']);
+    }
 }

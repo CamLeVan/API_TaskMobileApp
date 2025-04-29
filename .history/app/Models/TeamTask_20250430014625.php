@@ -43,12 +43,4 @@ class TeamTask extends Model
     {
         return $this->hasMany(TeamTaskAssignment::class, 'team_task_id', 'id');
     }
-
-    /**
-     * Get the subtasks for the team task.
-     */
-    public function subtasks()
-    {
-        return $this->morphMany(Subtask::class, 'taskable')->orderBy('order');
-    }
 }

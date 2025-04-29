@@ -3,7 +3,6 @@
 use App\Http\Controllers\Api\AnalyticsController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CalendarController;
-use App\Http\Controllers\Api\DraftController;
 use App\Http\Controllers\Api\FileController;
 use App\Http\Controllers\Api\GoogleAuthController;
 use App\Http\Controllers\Api\GroupChatController;

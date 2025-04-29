@@ -10,7 +10,7 @@ class TeamTask extends Model
     use HasFactory;
 
     protected $table = 'team_tasks';
-    protected $primaryKey = 'team_task_id';
+    protected $primaryKey = 'id';
 
     protected $fillable = [
         'team_id',
@@ -19,26 +19,36 @@ class TeamTask extends Model
         'description',
         'deadline',
         'priority',
-        'status'
+        'status',
+        'order'
     ];
 
     protected $casts = [
         'deadline' => 'datetime',
-        'priority' => 'integer'
+        'priority' => 'integer',
+        'order' => 'integer'
     ];
 
     public function team()
     {
-        return $this->belongsTo(Team::class, 'team_id', 'team_id');
+        return $this->belongsTo(Team::class, 'team_id', 'id');
     }
 
     public function creator()
     {
-        return $this->belongsTo(User::class, 'created_by', 'user_id');
+        return $this->belongsTo(User::class, 'created_by', 'id');
     }
 
     public function assignments()
     {
-        return $this->hasMany(TeamTaskAssignment::class, 'team_task_id', 'team_task_id');
+        return $this->hasMany(TeamTaskAssignment::class, 'team_task_id', 'id');
+    }
+
+    /**
+     * Get the subtasks for the team task.
+     */
+    public function subtasks()
+    {
+        return $this->morphMany(Subtask::class, 'taskable')->orderBy('order');
     }
 }

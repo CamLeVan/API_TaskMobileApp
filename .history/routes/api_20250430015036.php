@@ -1,21 +1,16 @@
 <?php
 
-use App\Http\Controllers\Api\AnalyticsController;
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\CalendarController;
-use App\Http\Controllers\Api\DraftController;
-use App\Http\Controllers\Api\FileController;
 use App\Http\Controllers\Api\GoogleAuthController;
 use App\Http\Controllers\Api\GroupChatController;
-use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PersonalTaskController;
-use App\Http\Controllers\Api\SubtaskController;
-use App\Http\Controllers\Api\SyncController;
 use App\Http\Controllers\Api\TeamController;
 use App\Http\Controllers\Api\TeamMemberController;
 use App\Http\Controllers\Api\TeamTaskAssignmentController;
 use App\Http\Controllers\Api\TeamTaskController;
-use App\Http\Controllers\Api\UserSettingController;
+use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\SyncController;
+use App\Http\Controllers\Api\FileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -49,9 +44,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Auth
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
-    Route::post('/auth/biometric', [AuthController::class, 'biometricAuth']);
-    Route::post('/auth/biometric/register', [AuthController::class, 'registerBiometric']);
-    Route::delete('/auth/biometric', [AuthController::class, 'removeBiometric']);
 
     // Personal tasks
     Route::apiResource('personal-tasks', PersonalTaskController::class);
@@ -128,7 +120,4 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // File upload
     Route::post('/upload', [FileController::class, 'upload']);
-
-    // Drafts
-    Route::apiResource('drafts', DraftController::class);
 });

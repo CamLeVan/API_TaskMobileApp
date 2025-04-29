@@ -152,20 +152,4 @@ class User extends Authenticatable
     {
         return $this->hasOne(UserSetting::class);
     }
-
-    /**
-     * Get user's drafts
-     */
-    public function drafts()
-    {
-        return $this->hasMany(Draft::class);
-    }
-
-    /**
-     * Get user's biometric authentication
-     */
-    public function biometricAuth()
-    {
-        return $this->hasMany(BiometricAuth::class);
-    }
 }

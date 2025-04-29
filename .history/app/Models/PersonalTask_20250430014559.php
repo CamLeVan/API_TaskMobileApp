@@ -10,7 +10,7 @@ class PersonalTask extends Model
     use HasFactory;
 
     protected $table = 'personal_tasks';
-    protected $primaryKey = 'task_id';
+    protected $primaryKey = 'id';
 
     protected $fillable = [
         'user_id',
@@ -18,16 +18,18 @@ class PersonalTask extends Model
         'description',
         'deadline',
         'priority',
-        'status'
+        'status',
+        'order'
     ];
 
     protected $casts = [
         'deadline' => 'datetime',
-        'priority' => 'integer'
+        'priority' => 'integer',
+        'order' => 'integer'
     ];
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id', 'user_id');
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 }
