@@ -7,7 +7,6 @@ use App\Http\Controllers\Api\DraftController;
 use App\Http\Controllers\Api\FileController;
 use App\Http\Controllers\Api\GoogleAuthController;
 use App\Http\Controllers\Api\GroupChatController;
-use App\Http\Controllers\Api\KanbanController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PersonalTaskController;
 use App\Http\Controllers\Api\SubtaskController;
@@ -131,13 +130,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/analytics/tasks', [AnalyticsController::class, 'getTaskStats']);
     Route::get('/analytics/productivity', [AnalyticsController::class, 'getProductivityScore']);
     Route::get('/analytics/team-performance', [AnalyticsController::class, 'getTeamPerformance']);
-    Route::get('/analytics/export', [AnalyticsController::class, 'export']);
 
     // Calendar
     Route::get('/calendar/tasks', [CalendarController::class, 'getTasksByDateRange']);
     Route::get('/calendar/day', [CalendarController::class, 'getTasksByDate']);
     Route::put('/calendar/sync', [CalendarController::class, 'updateCalendarSync']);
-    Route::get('/calendar/export', [CalendarController::class, 'export']);
 
     // Set password for Google-authenticated users
     Route::post('/auth/set-password', [GoogleAuthController::class, 'setPassword']);
@@ -150,24 +147,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/notifications/register-device', [NotificationController::class, 'registerDevice']);
     Route::delete('/notifications/unregister-device', [NotificationController::class, 'unregisterDevice']);
     Route::get('/notifications', [NotificationController::class, 'getNotifications']);
-    Route::put('/notifications/settings', [NotificationController::class, 'updateSettings']);
-    Route::post('/notifications/mark-read', [NotificationController::class, 'markAsRead']);
 
     // Sync routes
     Route::post('/sync/initial', [SyncController::class, 'initialSync']);
     Route::post('/sync/quick', [SyncController::class, 'quickSync']);
     Route::post('/sync/push', [SyncController::class, 'push']);
-    Route::post('/sync/selective', [SyncController::class, 'selective']);
-    Route::post('/sync/resolve-conflicts', [SyncController::class, 'resolveConflicts']);
 
     // File upload
     Route::post('/upload', [FileController::class, 'upload']);
 
     // Drafts
     Route::apiResource('drafts', DraftController::class);
-
-    // Kanban board
-    Route::get('/teams/{team}/kanban', [KanbanController::class, 'getTeamKanban']);
-    Route::put('/teams/{team}/kanban/tasks/{task}/move', [KanbanController::class, 'moveTask']);
-    Route::put('/teams/{team}/kanban/column-order', [KanbanController::class, 'updateColumnOrder']);
 });

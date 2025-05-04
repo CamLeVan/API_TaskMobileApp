@@ -5,9 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\GroupChatMessage;
 use App\Models\MessageReadStatus;
-use App\Models\NotificationQueue;
 use App\Models\SyncStatus;
-use App\Models\TeamTask;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -193,9 +191,7 @@ class SyncController extends Controller
                     // Broadcast trạng thái đọc
                     $message = GroupChatMessage::find($readData['message_id']);
                     if ($message) {
-                        // Trong triển khai thực tế, bạn sẽ broadcast sự kiện MessageRead
-                        // Ở đây chúng ta bỏ qua để tránh lỗi
-                        // broadcast(new \App\Events\MessageRead($message, $user));
+                        broadcast(new \App\Events\MessageRead($message, $user));
                     }
                 }
             }

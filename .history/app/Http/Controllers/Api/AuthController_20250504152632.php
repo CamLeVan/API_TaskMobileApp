@@ -235,7 +235,7 @@ class AuthController extends Controller
         ]);
 
         // Generate password reset token
-        $token = Str::random(60);
+        $token = \Illuminate\Support\Str::random(60);
 
         // Store token in password_resets table
         DB::table('password_reset_tokens')->updateOrInsert(
@@ -245,6 +245,9 @@ class AuthController extends Controller
                 'created_at' => now()
             ]
         );
+
+        // Get user
+        $user = User::where('email', $request->email)->first();
 
         // Send email with reset link
         // In a real application, you would use Laravel's built-in password reset functionality
@@ -287,7 +290,7 @@ class AuthController extends Controller
         }
 
         // Check if token is expired (tokens valid for 60 minutes)
-        if (Carbon::parse($resetRecord->created_at)->addMinutes(60)->isPast()) {
+        if (Carbon\Carbon::parse($resetRecord->created_at)->addMinutes(60)->isPast()) {
             return response()->json([
                 'message' => 'Token has expired'
             ], 422);
@@ -315,19 +318,21 @@ class AuthController extends Controller
     {
         $user = $request->user();
 
-        // Trong triển khai thực tế, bạn cần cài đặt package pragmarx/google2fa
-        // Ở đây chúng ta sẽ mô phỏng quá trình này
-        $secretKey = Str::random(32);
+        // Generate a secret key
+        $google2fa = new \PragmaRX\Google2FA\Google2FA();
+        $secretKey = $google2fa->generateSecretKey();
 
         // Store the secret key in the user's record
         $user->two_factor_secret = $secretKey;
         $user->two_factor_enabled = false; // Not enabled until verified
         $user->save();
 
-        // Trong triển khai thực tế, bạn sẽ tạo QR code URL
-        $qrCodeUrl = "https://api.qrserver.com/v1/create-qr-code/?data=otpauth://totp/" .
-            config('app.name') . ":" . $user->email .
-            "?secret=" . $secretKey . "&issuer=" . config('app.name');
+        // Generate the QR code URL
+        $qrCodeUrl = $google2fa->getQRCodeUrl(
+            config('app.name'),
+            $user->email,
+            $secretKey
+        );
 
         return response()->json([
             'secret' => $secretKey,
@@ -346,9 +351,9 @@ class AuthController extends Controller
 
         $user = $request->user();
 
-        // Trong triển khai thực tế, bạn sẽ xác thực mã với Google2FA
-        // Ở đây chúng ta sẽ mô phỏng quá trình này
-        $valid = $request->code === '123456'; // Mã giả định
+        // Verify the code
+        $google2fa = new \PragmaRX\Google2FA\Google2FA();
+        $valid = $google2fa->verifyKey($user->two_factor_secret, $request->code);
 
         if (!$valid) {
             return response()->json([

@@ -7,7 +7,6 @@ use App\Http\Controllers\Api\DraftController;
 use App\Http\Controllers\Api\FileController;
 use App\Http\Controllers\Api\GoogleAuthController;
 use App\Http\Controllers\Api\GroupChatController;
-use App\Http\Controllers\Api\KanbanController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PersonalTaskController;
 use App\Http\Controllers\Api\SubtaskController;
@@ -165,9 +164,4 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Drafts
     Route::apiResource('drafts', DraftController::class);
-
-    // Kanban board
-    Route::get('/teams/{team}/kanban', [KanbanController::class, 'getTeamKanban']);
-    Route::put('/teams/{team}/kanban/tasks/{task}/move', [KanbanController::class, 'moveTask']);
-    Route::put('/teams/{team}/kanban/column-order', [KanbanController::class, 'updateColumnOrder']);
 });

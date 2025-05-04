@@ -7,7 +7,6 @@ use App\Http\Controllers\Api\DraftController;
 use App\Http\Controllers\Api\FileController;
 use App\Http\Controllers\Api\GoogleAuthController;
 use App\Http\Controllers\Api\GroupChatController;
-use App\Http\Controllers\Api\KanbanController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PersonalTaskController;
 use App\Http\Controllers\Api\SubtaskController;

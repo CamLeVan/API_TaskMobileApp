@@ -193,9 +193,7 @@ class SyncController extends Controller
                     // Broadcast trạng thái đọc
                     $message = GroupChatMessage::find($readData['message_id']);
                     if ($message) {
-                        // Trong triển khai thực tế, bạn sẽ broadcast sự kiện MessageRead
-                        // Ở đây chúng ta bỏ qua để tránh lỗi
-                        // broadcast(new \App\Events\MessageRead($message, $user));
+                        broadcast(new \App\Events\MessageRead($message, $user));
                     }
                 }
             }
