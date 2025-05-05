@@ -10,16 +10,17 @@ class CreateMessageReactionsTable extends Migration
     {
         Schema::create('message_reactions', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('message_id');
-            $table->unsignedBigInteger('user_id');
+
+            // Chỉ khai báo 1 lần message_id và tạo foreign key ngay
+            $table->foreignId('message_id')->constrained('group_chat_messages')->onDelete('cascade');
+
+            // Khai báo user_id và foreign key
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+
             $table->string('reaction', 10);
             $table->timestamps();
-            
-            $table->foreign('message_id')->references('id')->on('group_chat_messages')
-                  ->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')
-                  ->onDelete('cascade');
-                  
+
+            // Unique constraint để không trùng reaction từ 1 user cho 1 message
             $table->unique(['message_id', 'user_id', 'reaction']);
         });
     }
@@ -28,4 +29,4 @@ class CreateMessageReactionsTable extends Migration
     {
         Schema::dropIfExists('message_reactions');
     }
-} 
+}
