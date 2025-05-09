@@ -79,8 +79,7 @@ class TeamRoleController extends Controller
         }
 
         $request->validate([
-            'role' => 'required|string|in:manager,member,custom_role',
-            'reason' => 'nullable|string|max:255'
+            'role' => 'required|string|in:manager,member,custom_role'
         ]);
 
         // Prevent removing the last manager

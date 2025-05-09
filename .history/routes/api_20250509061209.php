@@ -19,10 +19,6 @@ use App\Http\Controllers\Api\TeamRoleController;
 use App\Http\Controllers\Api\TeamRoleHistoryController;
 use App\Http\Controllers\Api\TeamTaskAssignmentController;
 use App\Http\Controllers\Api\TeamTaskController;
-use App\Http\Controllers\Api\DocumentController;
-use App\Http\Controllers\Api\DocumentFolderController;
-use App\Http\Controllers\Api\DocumentVersionController;
-use App\Http\Controllers\Api\DocumentSyncController;
 use App\Http\Controllers\Api\UserSettingController;
 use Illuminate\Support\Facades\Route;
 
@@ -171,33 +167,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // File upload
     Route::post('/upload', [FileController::class, 'upload']);
-
-    // Document management
-    Route::get('/teams/{team}/documents', [DocumentController::class, 'index']);
-    Route::post('/teams/{team}/documents', [DocumentController::class, 'store']);
-    Route::get('/documents/{document}', [DocumentController::class, 'show']);
-    Route::put('/documents/{document}', [DocumentController::class, 'update']);
-    Route::delete('/documents/{document}', [DocumentController::class, 'destroy']);
-    Route::get('/documents/{document}/download', [DocumentController::class, 'download']);
-    Route::put('/documents/{document}/access', [DocumentController::class, 'updateAccess']);
-
-    // Document folders
-    Route::get('/teams/{team}/folders', [DocumentFolderController::class, 'index']);
-    Route::post('/teams/{team}/folders', [DocumentFolderController::class, 'store']);
-    Route::get('/folders/{folder}', [DocumentFolderController::class, 'show']);
-    Route::put('/folders/{folder}', [DocumentFolderController::class, 'update']);
-    Route::delete('/folders/{folder}', [DocumentFolderController::class, 'destroy']);
-
-    // Document versions
-    Route::get('/documents/{document}/versions', [DocumentVersionController::class, 'index']);
-    Route::post('/documents/{document}/versions', [DocumentVersionController::class, 'store']);
-    Route::get('/documents/{document}/versions/{versionNumber}', [DocumentVersionController::class, 'show']);
-    Route::get('/documents/{document}/versions/{versionNumber}/download', [DocumentVersionController::class, 'download']);
-    Route::post('/documents/{document}/versions/{versionNumber}/restore', [DocumentVersionController::class, 'restore']);
-
-    // Document sync
-    Route::get('/sync/documents', [DocumentSyncController::class, 'getChanges']);
-    Route::post('/sync/documents/resolve-conflicts', [DocumentSyncController::class, 'resolveConflicts']);
 
     // Drafts
     Route::apiResource('drafts', DraftController::class);

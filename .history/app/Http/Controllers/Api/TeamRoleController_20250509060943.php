@@ -79,8 +79,7 @@ class TeamRoleController extends Controller
         }
 
         $request->validate([
-            'role' => 'required|string|in:manager,member,custom_role',
-            'reason' => 'nullable|string|max:255'
+            'role' => 'required|string|in:manager,member,custom_role'
         ]);
 
         // Prevent removing the last manager
@@ -91,22 +90,9 @@ class TeamRoleController extends Controller
             }
         }
 
-        // Store the old role before updating
-        $oldRole = $targetMember->role;
-
         // Update the member's role
         $targetMember->role = $request->role;
         $targetMember->save();
-
-        // Record the role change in history
-        TeamRoleHistory::create([
-            'team_id' => $team->id,
-            'user_id' => $user->id,
-            'changed_by' => Auth::id(),
-            'old_role' => $oldRole,
-            'new_role' => $request->role,
-            'reason' => $request->reason
-        ]);
 
         return response()->json([
             'message' => 'Role updated successfully',
