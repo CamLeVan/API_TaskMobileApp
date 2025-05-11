@@ -152,6 +152,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'getNotifications']);
     Route::put('/notifications/settings', [NotificationController::class, 'updateSettings']);
     Route::post('/notifications/mark-read', [NotificationController::class, 'markAsRead']);
+    Route::get('/notifications/task-reminders', [NotificationController::class, 'getTaskReminders']);
 
     // Sync routes
     Route::post('/sync/initial', [SyncController::class, 'initialSync']);

@@ -19,13 +19,17 @@ class PersonalTask extends Model
         'deadline',
         'priority',
         'status',
-        'order'
+        'order',
+        'labels',
+        'reminder_minutes_before'
     ];
 
     protected $casts = [
         'deadline' => 'datetime',
         'priority' => 'integer',
-        'order' => 'integer'
+        'order' => 'integer',
+        'labels' => 'array',
+        'reminder_minutes_before' => 'integer'
     ];
 
     public function user()

@@ -46,6 +46,13 @@ class PersonalTaskController extends Controller
             $query->where('priority', $request->priority);
         }
 
+        // Filter by labels
+        if ($request->has('labels') && is_array($request->labels)) {
+            foreach ($request->labels as $label) {
+                $query->whereJsonContains('labels', $label);
+            }
+        }
+
         // Filter by deadline
         if ($request->has('deadline')) {
             switch ($request->deadline) {
@@ -66,7 +73,7 @@ class PersonalTaskController extends Controller
                     break;
                 case 'overdue':
                     $query->where('deadline', '<', Carbon::today())
-                          ->where('status', '!=', 'completed');
+                        ->where('status', '!=', 'completed');
                     break;
                 case 'upcoming':
                     $query->where('deadline', '>=', Carbon::today());
@@ -102,9 +109,9 @@ class PersonalTaskController extends Controller
         $keyword = $request->q;
 
         $tasks = PersonalTask::where('user_id', $request->user()->id)
-            ->where(function($query) use ($keyword) {
+            ->where(function ($query) use ($keyword) {
                 $query->where('title', 'like', "%{$keyword}%")
-                      ->orWhere('description', 'like', "%{$keyword}%");
+                    ->orWhere('description', 'like', "%{$keyword}%");
             })
             ->orderBy('created_at', 'desc')
             ->get();
@@ -119,7 +126,10 @@ class PersonalTaskController extends Controller
             'description' => 'nullable|string',
             'deadline' => 'nullable|date',
             'priority' => 'nullable|integer|min:1|max:5',
-            'status' => 'required|in:pending,in_progress,completed,overdue'
+            'status' => 'required|in:pending,in_progress,completed,overdue',
+            'labels' => 'nullable|array',
+            'labels.*' => 'string',
+            'reminder_minutes_before' => 'nullable|integer|min:0'
         ]);
 
         $task = PersonalTask::create([
@@ -128,7 +138,9 @@ class PersonalTaskController extends Controller
             'description' => $request->description,
             'deadline' => $request->deadline,
             'priority' => $request->priority,
-            'status' => $request->status
+            'status' => $request->status,
+            'labels' => $request->labels,
+            'reminder_minutes_before' => $request->reminder_minutes_before
         ]);
 
         return response()->json($task, 201);
@@ -154,7 +166,10 @@ class PersonalTaskController extends Controller
             'description' => 'nullable|string',
             'deadline' => 'nullable|date',
             'priority' => 'nullable|integer|min:1|max:5',
-            'status' => 'required|in:pending,in_progress,completed,overdue'
+            'status' => 'required|in:pending,in_progress,completed,overdue',
+            'labels' => 'nullable|array',
+            'labels.*' => 'string',
+            'reminder_minutes_before' => 'nullable|integer|min:0'
         ]);
 
         $personalTask->update($request->all());

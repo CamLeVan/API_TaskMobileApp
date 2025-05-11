@@ -9,11 +9,14 @@ class Kernel extends ConsoleKernel
 {
     protected function schedule(Schedule $schedule)
     {
-        // Lịch trình command tại đây
+
+
+        // Chạy mỗi 5 phút để kiểm tra và gửi nhắc nhở
+        $schedule->command('tasks:send-reminders')->everyFiveMinutes();
     }
 
     protected function commands()
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
     }
 }
