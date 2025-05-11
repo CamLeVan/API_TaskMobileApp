@@ -202,27 +202,12 @@ class TeamInvitationController extends Controller
             return response()->json(['message' => 'Invalid or expired invitation'], 404);
         }
 
-        // Kiểm tra xem người dùng đã đăng nhập chưa
-        $user = Auth::user();
+        // Đánh dấu lời mời là đã từ chối
+        $invitation->markAsRejected();
 
-        // Kiểm tra xem email của người dùng có khớp với email trong lời mời không
-        if ($user->email !== $invitation->email) {
-            return response()->json(['message' => 'This invitation was not sent to your email address'], 403);
-        }
-
-        try {
-            // Đánh dấu lời mời là đã từ chối
-            $invitation->markAsRejected();
-
-            // TODO: Gửi thông báo WebSocket về việc lời mời bị từ chối
-
-            return response()->json([
-                'message' => 'Invitation rejected successfully'
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Failed to reject invitation: ' . $e->getMessage());
-            return response()->json(['message' => 'Failed to reject invitation'], 500);
-        }
+        return response()->json([
+            'message' => 'Invitation rejected successfully'
+        ]);
     }
 
     /**

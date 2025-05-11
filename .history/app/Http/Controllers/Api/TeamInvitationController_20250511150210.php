@@ -132,55 +132,37 @@ class TeamInvitationController extends Controller
         // Kiểm tra xem người dùng đã đăng nhập chưa
         $user = Auth::user();
 
-        // Kiểm tra xem email của người dùng có khớp với email trong lời mời không
-        if ($user->email !== $invitation->email) {
-            return response()->json(['message' => 'This invitation was not sent to your email address'], 403);
-        }
-
         // Kiểm tra xem người dùng đã là thành viên của nhóm chưa
         if ($team->members()->where('user_id', $user->id)->exists()) {
             $invitation->markAsRejected(); // Đánh dấu là đã từ chối vì người dùng đã là thành viên
             return response()->json(['message' => 'You are already a member of this team'], 400);
         }
 
-        // Sử dụng transaction để đảm bảo tính toàn vẹn dữ liệu
-        try {
-            DB::beginTransaction();
+        // Thêm người dùng vào nhóm với vai trò được chỉ định
+        $teamMember = new TeamMember([
+            'team_id' => $team->id,
+            'user_id' => $user->id,
+            'role' => $invitation->role,
+            'joined_at' => now()
+        ]);
 
-            // Thêm người dùng vào nhóm với vai trò được chỉ định
-            $teamMember = new TeamMember([
-                'team_id' => $team->id,
-                'user_id' => $user->id,
-                'role' => $invitation->role,
-                'joined_at' => now()
-            ]);
+        $teamMember->save();
 
-            $teamMember->save();
+        // Đánh dấu lời mời là đã chấp nhận
+        $invitation->markAsAccepted();
 
-            // Đánh dấu lời mời là đã chấp nhận
-            $invitation->markAsAccepted();
-
-            DB::commit();
-
-            // TODO: Gửi thông báo WebSocket về việc thành viên mới tham gia nhóm
-
-            return response()->json([
-                'message' => 'Invitation accepted successfully',
-                'data' => [
-                    'team' => [
-                        'id' => $team->id,
-                        'name' => $team->name,
-                        'description' => $team->description,
-                        'created_at' => $team->created_at
-                    ],
-                    'role' => $invitation->role
-                ]
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Failed to accept invitation: ' . $e->getMessage());
-            return response()->json(['message' => 'Failed to accept invitation'], 500);
-        }
+        return response()->json([
+            'message' => 'Invitation accepted successfully',
+            'data' => [
+                'team' => [
+                    'id' => $team->id,
+                    'name' => $team->name,
+                    'description' => $team->description,
+                    'created_at' => $team->created_at
+                ],
+                'role' => $invitation->role
+            ]
+        ]);
     }
 
     /**
@@ -202,27 +184,12 @@ class TeamInvitationController extends Controller
             return response()->json(['message' => 'Invalid or expired invitation'], 404);
         }
 
-        // Kiểm tra xem người dùng đã đăng nhập chưa
-        $user = Auth::user();
+        // Đánh dấu lời mời là đã từ chối
+        $invitation->markAsRejected();
 
-        // Kiểm tra xem email của người dùng có khớp với email trong lời mời không
-        if ($user->email !== $invitation->email) {
-            return response()->json(['message' => 'This invitation was not sent to your email address'], 403);
-        }
-
-        try {
-            // Đánh dấu lời mời là đã từ chối
-            $invitation->markAsRejected();
-
-            // TODO: Gửi thông báo WebSocket về việc lời mời bị từ chối
-
-            return response()->json([
-                'message' => 'Invitation rejected successfully'
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Failed to reject invitation: ' . $e->getMessage());
-            return response()->json(['message' => 'Failed to reject invitation'], 500);
-        }
+        return response()->json([
+            'message' => 'Invitation rejected successfully'
+        ]);
     }
 
     /**
