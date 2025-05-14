@@ -1,0 +1,132 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+
+class UserSearchController extends Controller
+{
+    /**
+     * Tìm kiếm người dùng
+     *
+     * API này được sử dụng khi mời người dùng vào nhóm
+     * Trả về tất cả người dùng phù hợp với từ khóa tìm kiếm
+     */
+    public function search(Request $request)
+    {
+        // Debug: Log request parameters
+        Log::info('UserSearch request params:', $request->all());
+
+        $request->validate([
+            'query' => 'nullable|string|min:2',
+            'name' => 'nullable|string|min:2',
+            'email' => 'nullable|string|min:2',
+            'exclude_team' => 'nullable|integer|exists:teams,id',
+            'per_page' => 'nullable|integer|min:5|max:100'
+        ]);
+
+        // Kiểm tra xem có ít nhất một tham số tìm kiếm
+        if (!$request->has('query') && !$request->has('name') && !$request->has('email')) {
+            Log::warning('UserSearch: No search parameters provided');
+            return response()->json([
+                'message' => 'Ít nhất một trong các tham số query, name hoặc email phải được cung cấp'
+            ], 422);
+        }
+
+        // Ưu tiên sử dụng tham số query nếu được cung cấp (để tương thích với ứng dụng Android hiện tại)
+        $query = $request->input('query');
+        $name = $request->input('name');
+        $email = $request->input('email');
+        $excludeTeamId = $request->input('exclude_team');
+        $perPage = $request->input('per_page', 15);
+
+        $usersQuery = User::query();
+
+        // Tìm kiếm theo từ khóa - sử dụng tham số truy vấn an toàn
+        $usersQuery->where(function($q) use ($query, $name, $email) {
+            // Nếu có tham số query (tương thích với ứng dụng Android hiện tại)
+            if ($query) {
+                Log::info('UserSearch: Searching by query', ['query' => $query]);
+                // Sử dụng tham số truy vấn an toàn
+                $q->where('name', 'like', '%' . $query . '%')
+                  ->orWhere('email', 'like', '%' . $query . '%');
+
+                // Debug: Thêm truy vấn trực tiếp để kiểm tra
+                Log::info('UserSearch: Direct check for exp@gmail.com');
+                $directCheck = User::where('email', 'exp@gmail.com')->first();
+                if ($directCheck) {
+                    Log::info('UserSearch: Found user with email exp@gmail.com', ['user' => $directCheck]);
+                } else {
+                    Log::warning('UserSearch: No user found with email exp@gmail.com');
+                }
+            } else {
+                // Tìm kiếm theo tên và/hoặc email
+                if ($name) {
+                    Log::info('UserSearch: Searching by name', ['name' => $name]);
+                    $q->where('name', 'like', '%' . $name . '%');
+                }
+
+                if ($email) {
+                    Log::info('UserSearch: Searching by email', ['email' => $email]);
+                    if ($name) {
+                        $q->orWhere('email', 'like', '%' . $email . '%');
+                    } else {
+                        $q->where('email', 'like', '%' . $email . '%');
+                    }
+                }
+            }
+        });
+
+        // Nếu có exclude_team, loại trừ những người đã là thành viên của nhóm đó
+        if ($excludeTeamId) {
+            $usersQuery->whereDoesntHave('teams', function($q) use ($excludeTeamId) {
+                $q->where('teams.id', $excludeTeamId);
+            });
+        }
+
+        // Không loại trừ người dùng hiện tại để có thể tìm kiếm tất cả người dùng
+        // $usersQuery->where('id', '!=', Auth::id());
+
+        // Debug: Log SQL query
+        $sql = $usersQuery->toSql();
+        $bindings = $usersQuery->getBindings();
+        Log::info('UserSearch: SQL query', ['sql' => $sql, 'bindings' => $bindings]);
+
+        // Debug: Thêm truy vấn trực tiếp để kiểm tra tất cả người dùng
+        $allUsers = User::all();
+        Log::info('UserSearch: Total users in database', ['count' => $allUsers->count()]);
+        foreach ($allUsers as $user) {
+            Log::info('UserSearch: User in database', [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email
+            ]);
+        }
+
+        // Sắp xếp và phân trang
+        $users = $usersQuery->orderBy('name')->paginate($perPage);
+
+        // Debug: Log results
+        Log::info('UserSearch: Results count', ['count' => $users->count(), 'total' => $users->total()]);
+
+        // Debug: Log first few results
+        if ($users->count() > 0) {
+            Log::info('UserSearch: First result', ['user' => $users->items()[0]]);
+        } else {
+            Log::warning('UserSearch: No results found');
+        }
+
+        return response()->json([
+            'data' => $users->items(),
+            'meta' => [
+                'current_page' => $users->currentPage(),
+                'last_page' => $users->lastPage(),
+                'per_page' => $users->perPage(),
+                'total' => $users->total()
+            ]
+        ]);
+    }
+}

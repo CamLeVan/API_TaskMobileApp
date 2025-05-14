@@ -23,7 +23,6 @@ use App\Http\Controllers\Api\DocumentController;
 use App\Http\Controllers\Api\DocumentFolderController;
 use App\Http\Controllers\Api\DocumentVersionController;
 use App\Http\Controllers\Api\DocumentSyncController;
-use App\Http\Controllers\Api\UserSearchController;
 use App\Http\Controllers\Api\UserSettingController;
 use Illuminate\Support\Facades\Route;
 
